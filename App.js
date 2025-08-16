@@ -1,74 +1,68 @@
-// App.js
 import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { Ionicons } from '@expo/vector-icons';
 
-// ✅ adjust these import paths if your files live elsewhere
-import Scenario1Screen from './screens/Scenario1Screen';
+import ScenarioListScreen from './screens/ScenarioListScreen';
+import Scenario1Screen from './screens/ScenarioScreens/Scenario1Screen';
+import Scenario2Screen from './screens/ScenarioScreens/Scenario2Screen';
+import Scenario3Screen from './screens/ScenarioScreens/Scenario3Screen';
+import Scenario4Screen from './screens/ScenarioScreens/Scenario4Screen';
+import Scenario5Screen from './screens/ScenarioScreens/Scenario5Screen';
+import Scenario6Screen from './screens/ScenarioScreens/Scenario6Screen';
+import Scenario7Screen from './screens/ScenarioScreens/Scenario7Screen';
+
 import CharactersScreen from './screens/CharactersScreen';
 import CharacterDetailScreen from './screens/CharacterDetailScreen';
 
-const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
+const Tab = createBottomTabNavigator();
 
-// Stack for the Characters flow (list -> detail)
-function CharactersStack() {
+function ScenariosStack() {
   return (
-    <Stack.Navigator
-      screenOptions={{
-        headerTitleAlign: 'center',
-      }}
-    >
+    <Stack.Navigator>
       <Stack.Screen
-        name="Characters"
-        component={CharactersScreen}
-        options={{ title: 'Characters' }}
+        name="ScenarioList"
+        component={ScenarioListScreen}
+        options={{ title: 'Scenarios' }} // <-- no headerRight here anymore
       />
-      <Stack.Screen
-        name="CharacterDetail"
-        component={CharacterDetailScreen}
-        options={({ route }) => ({
-          title: route.params?.character?.name ?? 'Profile',
-        })}
-      />
+      <Stack.Screen name="Scenario1" component={Scenario1Screen} options={{ title: 'Scenario #1' }} />
+      <Stack.Screen name="Scenario2" component={Scenario2Screen} options={{ title: 'Scenario #2' }} />
+      <Stack.Screen name="Scenario3" component={Scenario3Screen} options={{ title: 'Scenario #3' }} />
+      <Stack.Screen name="Scenario4" component={Scenario4Screen} options={{ title: 'Scenario #4' }} />
+      <Stack.Screen name="Scenario5" component={Scenario5Screen} options={{ title: 'Scenario #5' }} />
+      <Stack.Screen name="Scenario6" component={Scenario6Screen} options={{ title: 'Scenario #6' }} />
+      <Stack.Screen name="Scenario7" component={Scenario7Screen} options={{ title: 'Scenario #7' }} />
     </Stack.Navigator>
   );
 }
 
-// Stack for Scenario (you can add more scenarios later)
-function ScenarioStack() {
+function CharactersStack() {
   return (
-    <Stack.Navigator
-      screenOptions={{
-        headerTitleAlign: 'center',
-      }}
-    >
-      <Stack.Screen
-        name="Scenario1"
-        component={Scenario1Screen}
-        options={{ title: 'Scenario #1' }}
-      />
+    <Stack.Navigator>
+      <Stack.Screen name="Characters" component={CharactersScreen} options={{ title: 'Characters' }} />
+      <Stack.Screen name="CharacterDetail" component={CharacterDetailScreen} options={{ title: 'Profile' }} />
     </Stack.Navigator>
   );
 }
 
 export default function App() {
   return (
-    <SafeAreaProvider>
-      <NavigationContainer>
-        <Tab.Navigator
-          initialRouteName="Scenario"
-          screenOptions={{
-            headerShown: false,            // headers are provided by the nested stacks
-            tabBarLabelStyle: { fontWeight: '700' },
-          }}
-        >
-          <Tab.Screen name="Scenario" component={ScenarioStack} />
-          <Tab.Screen name="CharactersTab" component={CharactersStack} options={{ title: 'Characters' }} />
-        </Tab.Navigator>
-      </NavigationContainer>
-    </SafeAreaProvider>
+    <NavigationContainer>
+      <Tab.Navigator
+        screenOptions={({ route }) => ({
+          headerShown: false,
+          tabBarActiveTintColor: '#ff6b00',
+          tabBarIcon: ({ color, size }) =>
+            route.name === 'Scenarios'
+              ? <Ionicons name="list" size={size} color={color} />
+              : <Ionicons name="person" size={size} color={color} />,
+        })}
+      >
+        <Tab.Screen name="Scenarios" component={ScenariosStack} />
+        <Tab.Screen name="Characters" component={CharactersStack} />
+      </Tab.Navigator>
+    </NavigationContainer>
   );
 }
