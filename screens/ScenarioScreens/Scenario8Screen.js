@@ -1,4 +1,4 @@
-// screens/Scenario2Screen.js
+// screens/ScenarioScreens/Scenario8Screen.js
 import React, { useEffect, useMemo, useState } from 'react';
 import {
   View,
@@ -19,31 +19,36 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import ConfettiCannon from 'react-native-confetti-cannon';
 
 import { characters } from '../../data/characters';
-import { setScenarioCompleted } from '../../src/progress';
 import { COLORS } from '../../src/theme/colors';
+import { setScenarioCompleted } from '../../src/progress';
 
-// 🔑 STORAGE + ANSWER CONFIG
-const NOTES_KEY = 'scenario2_notes_v1';
+const NOTES_KEY = 'scenario8_notes_v1';
+const CORRECT_NAME = 'Arjun Singh';
 
-// TODO: change this to the *actual* correct character name for Scenario 2
-const CORRECT_NAME = 'Derek Li';
+/**
+ * Hero image helper (auto aspect ratio)
+ */
+function HeroImage({ source }) {
+  const asset = Image.resolveAssetSource(source);
+  const aspect =
+    asset?.width && asset?.height ? asset.width / asset.height : 3 / 4;
 
-export default function Scenario2Screen() {
+  return (
+    <Image
+      source={source}
+      resizeMode="contain"
+      style={[styles.hero, { width: '100%', height: undefined, aspectRatio: aspect }]}
+    />
+  );
+}
+
+export default function Scenario8Screen() {
   const insets = useSafeAreaInsets();
   const [notes, setNotes] = useState('');
   const [saving, setSaving] = useState(false);
-
-  // guess UI
   const [showResult, setShowResult] = useState(false);
   const [isCorrect, setIsCorrect] = useState(false);
   const [picked, setPicked] = useState(null);
-
-  // When the player solves Scenario 2 correctly, mark it as completed
-  useEffect(() => {
-    if (isCorrect) {
-      setScenarioCompleted(2);
-    }
-  }, [isCorrect]);
 
   const correctId = useMemo(
     () => characters.find((c) => c.name === CORRECT_NAME)?.id,
@@ -64,7 +69,7 @@ export default function Scenario2Screen() {
       setSaving(true);
       await AsyncStorage.setItem(NOTES_KEY, notes);
       Alert.alert('Saved', 'Your notes were saved on this device.');
-    } catch (e) {
+    } catch {
       Alert.alert('Error', 'Could not save notes.');
     } finally {
       setSaving(false);
@@ -72,17 +77,15 @@ export default function Scenario2Screen() {
   };
 
   const onPick = (id) => {
-    if (!correctId) {
-      Alert.alert(
-        'Missing answer',
-        'Set CORRECT_NAME in Scenario2Screen.js to a valid character name.'
-      );
-      return;
-    }
-
     const right = id === correctId;
     setPicked(id);
     setIsCorrect(right);
+
+    if (right) {
+      // 🔓 mark Scenario 8 as completed
+      setScenarioCompleted(8);
+    }
+
     setShowResult(true);
   };
 
@@ -95,60 +98,53 @@ export default function Scenario2Screen() {
         contentContainerStyle={styles.container}
         keyboardShouldPersistTaps="handled"
       >
-        <Text style={styles.kicker}>Scenario #2</Text>
+        <Text style={styles.kicker}>Scenario #8</Text>
         <Text style={styles.title}>
-          Doxxing and posting private information
+          Malware: posting a download for an app that leads to a malware attack
         </Text>
 
-        {/* HERO IMAGE
-            You can change this to your Scenario 2 image if you have one, e.g.:
-            require('../../assets/scenarios/scenario2.png')
-        */}
-        <Image
-          source={require('../../assets/scenarios/xyz-confessions.png')}
-          style={styles.hero}
-          resizeMode="contain"
-        />
+        <HeroImage source={require('../../assets/scenarios/malware.png')} />
 
-        {/* Description — EDIT THIS TEXT TO YOUR FINAL SCENARIO COPY */}
+        {/* Description */}
         <View style={styles.card}>
           <Text style={styles.sectionTitle}>Description</Text>
           <Text style={styles.body}>
-            A student-run account has started posting screenshots of private
-            group chats, home addresses, and phone numbers of classmates. Some
-            posts even show partial credit card numbers and personal schedules.
-            The posts are framed as “exposing the truth,” but they put several
-            students at serious risk of harassment and stalking.
+            An individual posted on social media about a phone customization app
+            that lets users download unique graphics, wallpapers, and fonts to
+            personalize their devices. They included a pop-up link in the
+            caption of the video, and viewers clicked on it and downloaded the
+            app. The app seemed harmless at first, but led to a series of
+            malware attacks that accessed phone cameras, contacts, and location
+            data.
           </Text>
         </View>
 
-        {/* Task — EDIT IF NEEDED */}
+        {/* Task */}
         <View style={styles.card}>
           <Text style={styles.sectionTitle}>Your Task</Text>
           <Text style={styles.body}>
-            Identify which individual is responsible for collecting and
-            publishing these private details.
+            Figure out who created and shared the malicious app download link.
           </Text>
         </View>
 
-        {/* Clues — EDIT THESE TO MATCH YOUR SCENARIO 2 CLUES */}
+        {/* Clues */}
         <View style={styles.card}>
           <Text style={styles.sectionTitle}>Clues</Text>
           <Bullet>
-            The doxxing posts include screenshots from private group chats where
-            only a few people were invited.
+            The download link was generated from a site and shortened to look
+            less suspicious.
           </Bullet>
           <Bullet>
-            Some posts reveal information that only someone with access to the
-            school’s internal portal (or gradebook system) would know.
+            The app icon was drawn by hand using a digital art software
+            application.
           </Bullet>
           <Bullet>
-            The account often posts right after late-night gaming sessions that
-            several students mention in their chats.
+            The software application used to draw the icon was titled
+            “ASthetically”.
           </Bullet>
           <Bullet>
-            A victim recognizes their address copied word-for-word from a
-            private delivery confirmation email.
+            A medical terminology quiz app was also created under the same
+            username as the creator of this malware application.
           </Bullet>
         </View>
 
@@ -180,8 +176,7 @@ export default function Scenario2Screen() {
         <View style={styles.card}>
           <Text style={styles.sectionTitle}>Notes</Text>
           <Text style={styles.help}>
-            Jot ideas here (suspects, motives, access to private info, patterns
-            in timing). Saved locally on this device.
+            Jot ideas here. Saved locally on this device.
           </Text>
           <TextInput
             value={notes}
@@ -208,7 +203,6 @@ export default function Scenario2Screen() {
         <View style={{ height: 40 }} />
       </ScrollView>
 
-      {/* Result Modal */}
       <ResultModal
         visible={showResult}
         correct={isCorrect}
@@ -230,7 +224,6 @@ function Bullet({ children }) {
 
 function ResultModal({ visible, correct, onClose }) {
   const { width } = Dimensions.get('window');
-
   return (
     <Modal
       visible={visible}
@@ -255,10 +248,9 @@ function ResultModal({ visible, correct, onClose }) {
           </Text>
           <Text style={styles.resultBody}>
             {correct
-              ? 'Nice deduction — you identified who is behind the doxxing posts.'
-              : 'Not quite. Re-check who has access to private information and try again.'}
+              ? 'Nice deduction — you found the culprit!'
+              : 'Not quite. Re-check the clues and try another profile.'}
           </Text>
-
           <Pressable
             onPress={onClose}
             style={({ pressed }) => [
@@ -269,8 +261,6 @@ function ResultModal({ visible, correct, onClose }) {
             <Text style={styles.modalBtnText}>Back</Text>
           </Pressable>
         </View>
-
-        {/* confetti only when correct */}
         {correct ? (
           <ConfettiCannon
             count={140}
@@ -284,7 +274,7 @@ function ResultModal({ visible, correct, onClose }) {
   );
 }
 
-/* ---------- Styles ---------- */
+/* ---------- Styles (dark themed, consistent with 1–7) ---------- */
 const styles = StyleSheet.create({
   root: {
     flex: 1,
@@ -307,8 +297,6 @@ const styles = StyleSheet.create({
     color: COLORS.textPrimary,
   },
   hero: {
-    width: '100%',
-    height: 220,
     borderRadius: 14,
     backgroundColor: COLORS.card,
     borderWidth: 1,
@@ -338,7 +326,6 @@ const styles = StyleSheet.create({
     color: COLORS.textSecondary,
     marginBottom: 8,
   },
-
   bulletRow: {
     flexDirection: 'row',
     gap: 8,
@@ -352,7 +339,6 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.primary,
     marginTop: 6,
   },
-
   grid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
@@ -385,7 +371,6 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     color: COLORS.textPrimary,
   },
-
   input: {
     minHeight: 120,
     borderWidth: 1,
@@ -403,8 +388,11 @@ const styles = StyleSheet.create({
     borderRadius: 999,
     alignItems: 'center',
   },
-  buttonText: { color: '#fff', fontWeight: '800', fontSize: 15 },
-
+  buttonText: {
+    color: '#fff',
+    fontWeight: '800',
+    fontSize: 15,
+  },
   modalBackdrop: {
     flex: 1,
     backgroundColor: 'rgba(0,0,0,0.35)',
@@ -443,5 +431,8 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     borderRadius: 999,
   },
-  modalBtnText: { color: '#fff', fontWeight: '800' },
+  modalBtnText: {
+    color: '#fff',
+    fontWeight: '800',
+  },
 });

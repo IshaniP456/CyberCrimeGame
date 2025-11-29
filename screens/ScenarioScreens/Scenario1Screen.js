@@ -17,7 +17,10 @@ import {
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import ConfettiCannon from 'react-native-confetti-cannon';
+
 import { characters } from '../../data/characters';
+import { setScenarioCompleted } from '../../src/progress';
+import { COLORS } from '../../src/theme/colors';
 
 const NOTES_KEY = 'scenario1_notes_v1';
 const CORRECT_NAME = 'Ellie Jameson';
@@ -32,8 +35,15 @@ export default function Scenario1Screen() {
   const [isCorrect, setIsCorrect] = useState(false);
   const [picked, setPicked] = useState(null);
 
+  // When the player solves Scenario 1 correctly, mark it as completed
+  useEffect(() => {
+    if (isCorrect) {
+      setScenarioCompleted(1);
+    }
+  }, [isCorrect]);
+
   const correctId = useMemo(
-    () => characters.find(c => c.name === CORRECT_NAME)?.id,
+    () => characters.find((c) => c.name === CORRECT_NAME)?.id,
     []
   );
 
@@ -70,10 +80,16 @@ export default function Scenario1Screen() {
       style={[styles.root, { paddingTop: insets.top }]}
       behavior={Platform.select({ ios: 'padding', android: undefined })}
     >
-      <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
+      <ScrollView
+        contentContainerStyle={styles.container}
+        keyboardShouldPersistTaps="handled"
+      >
         <Text style={styles.kicker}>Scenario #1</Text>
-        <Text style={styles.title}>Running an anonymous school gossip account</Text>
+        <Text style={styles.title}>
+          Running an anonymous school gossip account
+        </Text>
 
+        {/* HERO IMAGE — still the same source */}
         <Image
           source={require('../../assets/scenarios/xyz-confessions.png')}
           style={styles.hero}
@@ -84,10 +100,11 @@ export default function Scenario1Screen() {
         <View style={styles.card}>
           <Text style={styles.sectionTitle}>Description</Text>
           <Text style={styles.body}>
-            A popular anonymous gossip page has been gaining attention at a local college.
-            Students submit anonymous confessions about other students through direct messages,
-            circulating damaging rumors and false information. Many classmates feel targeted and
-            unsafe. The page’s admin remains unknown, but the content has caused serious
+            A popular anonymous gossip page has been gaining attention at a
+            local college. Students submit anonymous confessions about other
+            students through direct messages, circulating damaging rumors and
+            false information. Many classmates feel targeted and unsafe. The
+            page’s admin remains unknown, but the content has caused serious
             distress and conflict among students.
           </Text>
         </View>
@@ -95,15 +112,27 @@ export default function Scenario1Screen() {
         {/* Task */}
         <View style={styles.card}>
           <Text style={styles.sectionTitle}>Your Task</Text>
-          <Text style={styles.body}>Figure out who is the individual behind the page.</Text>
+          <Text style={styles.body}>
+            Figure out who is the individual behind the page.
+          </Text>
         </View>
 
         {/* Clues */}
         <View style={styles.card}>
           <Text style={styles.sectionTitle}>Clues</Text>
-          <Bullet>Multiple online accounts linked by writing style and posting times suggest one person managing several profiles.</Bullet>
-          <Bullet>One post has been debunked by another student. Turns out the photo the gossip account posted was edited and made up by the page’s admin.</Bullet>
-          <Bullet>Posts often reference inside information that only someone part of the school community would know.</Bullet>
+          <Bullet>
+            Multiple online accounts linked by writing style and posting times
+            suggest one person managing several profiles.
+          </Bullet>
+          <Bullet>
+            One post has been debunked by another student. Turns out the photo
+            the gossip account posted was edited and made up by the page’s
+            admin.
+          </Bullet>
+          <Bullet>
+            Posts often reference inside information that only someone part of
+            the school community would know.
+          </Bullet>
           <Bullet>Usually uploads posts in the late afternoon/night.</Bullet>
         </View>
 
@@ -114,9 +143,18 @@ export default function Scenario1Screen() {
 
           <View style={styles.grid}>
             {characters.map((c) => (
-              <Pressable key={c.id} style={styles.item} onPress={() => onPick(c.id)}>
+              <Pressable
+                key={c.id}
+                style={[
+                  styles.item,
+                  picked === c.id && styles.itemSelected,
+                ]}
+                onPress={() => onPick(c.id)}
+              >
                 <Image source={c.image} style={styles.avatar} />
-                <Text style={styles.name} numberOfLines={1}>{c.name}</Text>
+                <Text style={styles.name} numberOfLines={1}>
+                  {c.name}
+                </Text>
               </Pressable>
             ))}
           </View>
@@ -126,19 +164,28 @@ export default function Scenario1Screen() {
         <View style={styles.card}>
           <Text style={styles.sectionTitle}>Notes</Text>
           <Text style={styles.help}>
-            Jot ideas here (suspects, motives, alibis, times). Saved locally on this device.
+            Jot ideas here (suspects, motives, alibis, times). Saved locally on
+            this device.
           </Text>
           <TextInput
             value={notes}
             onChangeText={setNotes}
             placeholder="Type your notes..."
-            placeholderTextColor="#9aa0a6"
+            placeholderTextColor={COLORS.textSecondary}
             multiline
             textAlignVertical="top"
             style={styles.input}
           />
-          <Pressable onPress={onSave} style={({ pressed }) => [styles.button, pressed && { opacity: 0.85 }]}>
-            <Text style={styles.buttonText}>{saving ? 'Saving…' : 'Save Notes'}</Text>
+          <Pressable
+            onPress={onSave}
+            style={({ pressed }) => [
+              styles.button,
+              pressed && { opacity: 0.85 },
+            ]}
+          >
+            <Text style={styles.buttonText}>
+              {saving ? 'Saving…' : 'Save Notes'}
+            </Text>
           </Pressable>
         </View>
 
@@ -169,10 +216,25 @@ function ResultModal({ visible, correct, onClose }) {
   const { width } = Dimensions.get('window');
 
   return (
-    <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
+    <Modal
+      visible={visible}
+      transparent
+      animationType="fade"
+      onRequestClose={onClose}
+    >
       <View style={styles.modalBackdrop}>
-        <View style={[styles.modalCard, correct ? styles.okBorder : styles.errBorder]}>
-          <Text style={[styles.resultTitle, correct ? styles.okText : styles.errText]}>
+        <View
+          style={[
+            styles.modalCard,
+            correct ? styles.okBorder : styles.errBorder,
+          ]}
+        >
+          <Text
+            style={[
+              styles.resultTitle,
+              correct ? styles.okText : styles.errText,
+            ]}
+          >
             {correct ? 'Correct!' : 'Incorrect'}
           </Text>
           <Text style={styles.resultBody}>
@@ -181,7 +243,13 @@ function ResultModal({ visible, correct, onClose }) {
               : 'Not quite. Re-check the clues and try another profile.'}
           </Text>
 
-          <Pressable onPress={onClose} style={({ pressed }) => [styles.modalBtn, pressed && { opacity: 0.9 }]}>
+          <Pressable
+            onPress={onClose}
+            style={({ pressed }) => [
+              styles.modalBtn,
+              pressed && { opacity: 0.9 },
+            ]}
+          >
             <Text style={styles.modalBtnText}>Back</Text>
           </Pressable>
         </View>
@@ -202,32 +270,72 @@ function ResultModal({ visible, correct, onClose }) {
 
 /* ---------- Styles ---------- */
 const styles = StyleSheet.create({
-  root: { flex: 1, backgroundColor: '#F6F7F9' },
-  container: { padding: 16 },
-  kicker: { fontSize: 13, fontWeight: '700', color: '#ff4d3d', letterSpacing: 0.5 },
-  title: { fontSize: 22, fontWeight: '800', marginTop: 4, marginBottom: 10 },
+  root: {
+    flex: 1,
+    backgroundColor: COLORS.background, // dark
+  },
+  container: {
+    padding: 16,
+  },
+  kicker: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: COLORS.primary, // accent
+    letterSpacing: 0.5,
+  },
+  title: {
+    fontSize: 22,
+    fontWeight: '800',
+    marginTop: 4,
+    marginBottom: 10,
+    color: COLORS.textPrimary,
+  },
   hero: {
     width: '100%',
     height: 220,
     borderRadius: 14,
-    backgroundColor: '#fff',
+    backgroundColor: COLORS.card,
     borderWidth: 1,
-    borderColor: '#e7e7e7',
+    borderColor: COLORS.border,
   },
   card: {
-    backgroundColor: '#fff',
+    backgroundColor: COLORS.card,
     borderRadius: 14,
     borderWidth: 1,
-    borderColor: '#e7e7e7',
+    borderColor: COLORS.border,
     padding: 14,
     marginTop: 12,
   },
-  sectionTitle: { fontSize: 16, fontWeight: '800', marginBottom: 8 },
-  body: { fontSize: 14, lineHeight: 20, color: '#222' },
-  help: { fontSize: 12, color: '#6b7280', marginBottom: 8 },
+  sectionTitle: {
+    fontSize: 16,
+    fontWeight: '800',
+    marginBottom: 8,
+    color: COLORS.primary,
+  },
+  body: {
+    fontSize: 14,
+    lineHeight: 20,
+    color: COLORS.textPrimary,
+  },
+  help: {
+    fontSize: 12,
+    color: COLORS.textSecondary,
+    marginBottom: 8,
+  },
 
-  bulletRow: { flexDirection: 'row', gap: 8, marginBottom: 8, alignItems: 'flex-start' },
-  dot: { width: 7, height: 7, borderRadius: 4, backgroundColor: '#ff4d3d', marginTop: 6 },
+  bulletRow: {
+    flexDirection: 'row',
+    gap: 8,
+    marginBottom: 8,
+    alignItems: 'flex-start',
+  },
+  dot: {
+    width: 7,
+    height: 7,
+    borderRadius: 4,
+    backgroundColor: COLORS.primary,
+    marginTop: 6,
+  },
 
   grid: {
     flexDirection: 'row',
@@ -240,21 +348,41 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     alignItems: 'center',
   },
-  avatar: { width: 70, height: 70, borderRadius: 35, marginBottom: 6, backgroundColor: '#f1f1f1' },
-  name: { fontSize: 11, fontWeight: '700', textAlign: 'center' },
+  itemSelected: {
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: COLORS.primary,
+    backgroundColor: '#262728',
+  },
+  avatar: {
+    width: 70,
+    height: 70,
+    borderRadius: 35,
+    marginBottom: 6,
+    backgroundColor: '#262626',
+    borderWidth: 2,
+    borderColor: COLORS.primary,
+  },
+  name: {
+    fontSize: 11,
+    fontWeight: '700',
+    textAlign: 'center',
+    color: COLORS.textPrimary,
+  },
 
   input: {
     minHeight: 120,
     borderWidth: 1,
-    borderColor: '#e5e7eb',
+    borderColor: COLORS.border,
     borderRadius: 10,
     padding: 12,
     fontSize: 14,
-    backgroundColor: '#fafafa',
+    backgroundColor: '#262728',
+    color: COLORS.textPrimary,
   },
   button: {
     marginTop: 10,
-    backgroundColor: '#ff4d3d',
+    backgroundColor: COLORS.primary,
     paddingVertical: 12,
     borderRadius: 999,
     alignItems: 'center',
@@ -271,20 +399,30 @@ const styles = StyleSheet.create({
   modalCard: {
     width: '100%',
     maxWidth: 420,
-    backgroundColor: '#fff',
+    backgroundColor: COLORS.card,
     borderRadius: 16,
     padding: 18,
     borderWidth: 2,
   },
   okBorder: { borderColor: '#22c55e' },
   errBorder: { borderColor: '#ef4444' },
-  resultTitle: { fontSize: 22, fontWeight: '900', marginBottom: 6, textAlign: 'center' },
-  okText: { color: '#16a34a' },
-  errText: { color: '#dc2626' },
-  resultBody: { textAlign: 'center', color: '#111827', marginBottom: 12 },
+  resultTitle: {
+    fontSize: 22,
+    fontWeight: '900',
+    marginBottom: 6,
+    textAlign: 'center',
+    color: COLORS.textPrimary,
+  },
+  okText: { color: '#4ade80' },
+  errText: { color: '#f87171' },
+  resultBody: {
+    textAlign: 'center',
+    color: COLORS.textSecondary,
+    marginBottom: 12,
+  },
   modalBtn: {
     alignSelf: 'center',
-    backgroundColor: '#111827',
+    backgroundColor: COLORS.primary,
     paddingHorizontal: 18,
     paddingVertical: 10,
     borderRadius: 999,

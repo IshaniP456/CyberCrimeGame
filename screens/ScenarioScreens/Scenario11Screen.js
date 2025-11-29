@@ -1,4 +1,4 @@
-// screens/Scenario2Screen.js
+// screens/ScenarioScreens/Scenario11Screen.js
 import React, { useEffect, useMemo, useState } from 'react';
 import {
   View,
@@ -19,37 +19,42 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import ConfettiCannon from 'react-native-confetti-cannon';
 
 import { characters } from '../../data/characters';
-import { setScenarioCompleted } from '../../src/progress';
 import { COLORS } from '../../src/theme/colors';
+import { setScenarioCompleted } from '../../src/progress';
 
-// 🔑 STORAGE + ANSWER CONFIG
-const NOTES_KEY = 'scenario2_notes_v1';
+const NOTES_KEY = 'scenario11_notes_v1';
+const CORRECT_NAME = 'Frederick Green';
 
-// TODO: change this to the *actual* correct character name for Scenario 2
-const CORRECT_NAME = 'Derek Li';
+/** Auto-sized hero image */
+function HeroImage({ source }) {
+  const asset = Image.resolveAssetSource(source);
+  const aspect =
+    asset?.width && asset?.height ? asset.width / asset.height : 3 / 4;
 
-export default function Scenario2Screen() {
+  return (
+    <Image
+      source={source}
+      resizeMode="contain"
+      style={[styles.hero, { width: '100%', height: undefined, aspectRatio: aspect }]}
+    />
+  );
+}
+
+export default function Scenario11Screen() {
   const insets = useSafeAreaInsets();
   const [notes, setNotes] = useState('');
   const [saving, setSaving] = useState(false);
 
-  // guess UI
   const [showResult, setShowResult] = useState(false);
   const [isCorrect, setIsCorrect] = useState(false);
   const [picked, setPicked] = useState(null);
-
-  // When the player solves Scenario 2 correctly, mark it as completed
-  useEffect(() => {
-    if (isCorrect) {
-      setScenarioCompleted(2);
-    }
-  }, [isCorrect]);
 
   const correctId = useMemo(
     () => characters.find((c) => c.name === CORRECT_NAME)?.id,
     []
   );
 
+  // Load saved notes
   useEffect(() => {
     (async () => {
       try {
@@ -64,7 +69,7 @@ export default function Scenario2Screen() {
       setSaving(true);
       await AsyncStorage.setItem(NOTES_KEY, notes);
       Alert.alert('Saved', 'Your notes were saved on this device.');
-    } catch (e) {
+    } catch {
       Alert.alert('Error', 'Could not save notes.');
     } finally {
       setSaving(false);
@@ -72,17 +77,15 @@ export default function Scenario2Screen() {
   };
 
   const onPick = (id) => {
-    if (!correctId) {
-      Alert.alert(
-        'Missing answer',
-        'Set CORRECT_NAME in Scenario2Screen.js to a valid character name.'
-      );
-      return;
-    }
-
     const right = id === correctId;
     setPicked(id);
     setIsCorrect(right);
+
+    if (right) {
+      // Mark Scenario 11 as completed for locking system
+      setScenarioCompleted(11);
+    }
+
     setShowResult(true);
   };
 
@@ -95,60 +98,63 @@ export default function Scenario2Screen() {
         contentContainerStyle={styles.container}
         keyboardShouldPersistTaps="handled"
       >
-        <Text style={styles.kicker}>Scenario #2</Text>
+        <Text style={styles.kicker}>Scenario #11</Text>
         <Text style={styles.title}>
-          Doxxing and posting private information
+          Company-wide Virus Locking All Devices with a Looping Video
         </Text>
 
-        {/* HERO IMAGE
-            You can change this to your Scenario 2 image if you have one, e.g.:
-            require('../../assets/scenarios/scenario2.png')
-        */}
-        <Image
-          source={require('../../assets/scenarios/xyz-confessions.png')}
-          style={styles.hero}
-          resizeMode="contain"
-        />
+        <HeroImage source={require('../../assets/scenarios/Virus.png')} />
 
-        {/* Description — EDIT THIS TEXT TO YOUR FINAL SCENARIO COPY */}
+        {/* Description */}
         <View style={styles.card}>
           <Text style={styles.sectionTitle}>Description</Text>
           <Text style={styles.body}>
-            A student-run account has started posting screenshots of private
-            group chats, home addresses, and phone numbers of classmates. Some
-            posts even show partial credit card numbers and personal schedules.
-            The posts are framed as “exposing the truth,” but they put several
-            students at serious risk of harassment and stalking.
+            A staff member knowingly downloads a malicious file disguised as a
+            software update. Within minutes, all connected company devices begin
+            playing a full-screen looping video that users cannot close or
+            minimize. Attempts to force-shut down or reboot fail. The virus
+            disables keyboard shortcuts and task managers, effectively locking
+            everyone out of their systems.
           </Text>
         </View>
 
-        {/* Task — EDIT IF NEEDED */}
+        {/* Task */}
         <View style={styles.card}>
           <Text style={styles.sectionTitle}>Your Task</Text>
           <Text style={styles.body}>
-            Identify which individual is responsible for collecting and
-            publishing these private details.
+            Figure out which staff member downloaded and spread the malicious
+            “update” that infected all company devices.
           </Text>
         </View>
 
-        {/* Clues — EDIT THESE TO MATCH YOUR SCENARIO 2 CLUES */}
+        {/* Clues */}
         <View style={styles.card}>
           <Text style={styles.sectionTitle}>Clues</Text>
           <Bullet>
-            The doxxing posts include screenshots from private group chats where
-            only a few people were invited.
+            The looping video is bizarre and unsettling, with eerie audio and
+            strange glitches. It looks intentionally styled and partially
+            AI-generated.
           </Bullet>
           <Bullet>
-            Some posts reveal information that only someone with access to the
-            school’s internal portal (or gradebook system) would know.
+            IT discovers the file was shared in a company-wide group chat as a
+            “required update,” causing it to spread quickly.
           </Bullet>
           <Bullet>
-            The account often posts right after late-night gaming sessions that
-            several students mention in their chats.
+            Security logs show the file was first downloaded on a Friday
+            evening, after most staff had logged off.
           </Bullet>
           <Bullet>
-            A victim recognizes their address copied word-for-word from a
-            private delivery confirmation email.
+            The company sells high-end luxury goods and maintains a polished,
+            exclusive brand image.
+          </Bullet>
+          <Bullet>
+            The video’s style matches that of a popular underground video
+            artist who recently interned in the company’s marketing department.
+          </Bullet>
+          <Bullet>
+            The update file’s name uses the company’s luxury brand initials
+            combined with a personal nickname only known among a small group of
+            employees.
           </Bullet>
         </View>
 
@@ -161,11 +167,11 @@ export default function Scenario2Screen() {
             {characters.map((c) => (
               <Pressable
                 key={c.id}
+                onPress={() => onPick(c.id)}
                 style={[
                   styles.item,
                   picked === c.id && styles.itemSelected,
                 ]}
-                onPress={() => onPick(c.id)}
               >
                 <Image source={c.image} style={styles.avatar} />
                 <Text style={styles.name} numberOfLines={1}>
@@ -180,8 +186,8 @@ export default function Scenario2Screen() {
         <View style={styles.card}>
           <Text style={styles.sectionTitle}>Notes</Text>
           <Text style={styles.help}>
-            Jot ideas here (suspects, motives, access to private info, patterns
-            in timing). Saved locally on this device.
+            Jot ideas here — motives, access, who knows the nickname, etc.
+            Saved locally on this device.
           </Text>
           <TextInput
             value={notes}
@@ -208,7 +214,6 @@ export default function Scenario2Screen() {
         <View style={{ height: 40 }} />
       </ScrollView>
 
-      {/* Result Modal */}
       <ResultModal
         visible={showResult}
         correct={isCorrect}
@@ -218,7 +223,7 @@ export default function Scenario2Screen() {
   );
 }
 
-/* ---------- Small helpers ---------- */
+/* ---------- Helpers ---------- */
 function Bullet({ children }) {
   return (
     <View style={styles.bulletRow}>
@@ -255,10 +260,9 @@ function ResultModal({ visible, correct, onClose }) {
           </Text>
           <Text style={styles.resultBody}>
             {correct
-              ? 'Nice deduction — you identified who is behind the doxxing posts.'
-              : 'Not quite. Re-check who has access to private information and try again.'}
+              ? 'Nice deduction — you found who unleashed the virus!'
+              : 'Not quite. Re-check how the file was shared, who had access, and the video style, then try again.'}
           </Text>
-
           <Pressable
             onPress={onClose}
             style={({ pressed }) => [
@@ -270,7 +274,6 @@ function ResultModal({ visible, correct, onClose }) {
           </Pressable>
         </View>
 
-        {/* confetti only when correct */}
         {correct ? (
           <ConfettiCannon
             count={140}
@@ -284,7 +287,7 @@ function ResultModal({ visible, correct, onClose }) {
   );
 }
 
-/* ---------- Styles ---------- */
+/* ---------- Styles (dark theme) ---------- */
 const styles = StyleSheet.create({
   root: {
     flex: 1,
@@ -302,24 +305,23 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 22,
     fontWeight: '800',
+    color: COLORS.textPrimary,
     marginTop: 4,
     marginBottom: 10,
-    color: COLORS.textPrimary,
   },
   hero: {
-    width: '100%',
-    height: 220,
     borderRadius: 14,
-    backgroundColor: COLORS.card,
     borderWidth: 1,
     borderColor: COLORS.border,
+    backgroundColor: COLORS.card,
+    marginBottom: 8,
   },
   card: {
     backgroundColor: COLORS.card,
     borderRadius: 14,
+    padding: 14,
     borderWidth: 1,
     borderColor: COLORS.border,
-    padding: 14,
     marginTop: 12,
   },
   sectionTitle: {
@@ -330,15 +332,14 @@ const styles = StyleSheet.create({
   },
   body: {
     fontSize: 14,
-    lineHeight: 20,
     color: COLORS.textPrimary,
+    lineHeight: 20,
   },
   help: {
     fontSize: 12,
     color: COLORS.textSecondary,
     marginBottom: 8,
   },
-
   bulletRow: {
     flexDirection: 'row',
     gap: 8,
@@ -352,7 +353,6 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.primary,
     marginTop: 6,
   },
-
   grid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
@@ -365,46 +365,48 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   itemSelected: {
-    borderRadius: 10,
     borderWidth: 1,
     borderColor: COLORS.primary,
+    borderRadius: 10,
     backgroundColor: '#262728',
   },
   avatar: {
     width: 70,
     height: 70,
     borderRadius: 35,
-    marginBottom: 6,
     backgroundColor: '#262626',
     borderWidth: 2,
     borderColor: COLORS.primary,
+    marginBottom: 6,
   },
   name: {
     fontSize: 11,
     fontWeight: '700',
-    textAlign: 'center',
     color: COLORS.textPrimary,
+    textAlign: 'center',
   },
-
   input: {
     minHeight: 120,
-    borderWidth: 1,
-    borderColor: COLORS.border,
     borderRadius: 10,
     padding: 12,
     fontSize: 14,
     backgroundColor: '#262728',
+    borderWidth: 1,
+    borderColor: COLORS.border,
     color: COLORS.textPrimary,
   },
   button: {
     marginTop: 10,
     backgroundColor: COLORS.primary,
-    paddingVertical: 12,
     borderRadius: 999,
+    paddingVertical: 12,
     alignItems: 'center',
   },
-  buttonText: { color: '#fff', fontWeight: '800', fontSize: 15 },
-
+  buttonText: {
+    color: '#fff',
+    fontSize: 15,
+    fontWeight: '800',
+  },
   modalBackdrop: {
     flex: 1,
     backgroundColor: 'rgba(0,0,0,0.35)',
@@ -425,9 +427,9 @@ const styles = StyleSheet.create({
   resultTitle: {
     fontSize: 22,
     fontWeight: '900',
-    marginBottom: 6,
     textAlign: 'center',
     color: COLORS.textPrimary,
+    marginBottom: 6,
   },
   okText: { color: '#4ade80' },
   errText: { color: '#f87171' },
@@ -439,9 +441,12 @@ const styles = StyleSheet.create({
   modalBtn: {
     alignSelf: 'center',
     backgroundColor: COLORS.primary,
-    paddingHorizontal: 18,
-    paddingVertical: 10,
     borderRadius: 999,
+    paddingVertical: 10,
+    paddingHorizontal: 18,
   },
-  modalBtnText: { color: '#fff', fontWeight: '800' },
+  modalBtnText: {
+    color: '#fff',
+    fontWeight: '800',
+  },
 });

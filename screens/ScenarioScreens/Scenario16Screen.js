@@ -1,4 +1,4 @@
-// screens/Scenario2Screen.js
+// screens/ScenarioScreens/Scenario16Screen.js
 import React, { useEffect, useMemo, useState } from 'react';
 import {
   View,
@@ -14,42 +14,54 @@ import {
   Modal,
   Dimensions,
 } from 'react-native';
+
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import ConfettiCannon from 'react-native-confetti-cannon';
 
 import { characters } from '../../data/characters';
-import { setScenarioCompleted } from '../../src/progress';
 import { COLORS } from '../../src/theme/colors';
+import { setScenarioCompleted } from '../../src/progress';
 
-// 🔑 STORAGE + ANSWER CONFIG
-const NOTES_KEY = 'scenario2_notes_v1';
+const NOTES_KEY = 'scenario16_notes_v1';
+const CORRECT_NAME = 'Kassidy Howard';
 
-// TODO: change this to the *actual* correct character name for Scenario 2
-const CORRECT_NAME = 'Derek Li';
+/* Auto-sizing hero image */
+function HeroImage({ source }) {
+  const asset = Image.resolveAssetSource(source);
+  const aspect =
+    asset?.width && asset?.height
+      ? asset.width / asset.height
+      : 3 / 4;
 
-export default function Scenario2Screen() {
+  return (
+    <Image
+      source={source}
+      resizeMode="contain"
+      style={[
+        styles.hero,
+        { width: '100%', height: undefined, aspectRatio: aspect },
+      ]}
+    />
+  );
+}
+
+export default function Scenario16Screen() {
   const insets = useSafeAreaInsets();
+
   const [notes, setNotes] = useState('');
   const [saving, setSaving] = useState(false);
 
-  // guess UI
   const [showResult, setShowResult] = useState(false);
   const [isCorrect, setIsCorrect] = useState(false);
   const [picked, setPicked] = useState(null);
-
-  // When the player solves Scenario 2 correctly, mark it as completed
-  useEffect(() => {
-    if (isCorrect) {
-      setScenarioCompleted(2);
-    }
-  }, [isCorrect]);
 
   const correctId = useMemo(
     () => characters.find((c) => c.name === CORRECT_NAME)?.id,
     []
   );
 
+  /* Load notes if they exist */
   useEffect(() => {
     (async () => {
       try {
@@ -64,7 +76,7 @@ export default function Scenario2Screen() {
       setSaving(true);
       await AsyncStorage.setItem(NOTES_KEY, notes);
       Alert.alert('Saved', 'Your notes were saved on this device.');
-    } catch (e) {
+    } catch {
       Alert.alert('Error', 'Could not save notes.');
     } finally {
       setSaving(false);
@@ -72,17 +84,14 @@ export default function Scenario2Screen() {
   };
 
   const onPick = (id) => {
-    if (!correctId) {
-      Alert.alert(
-        'Missing answer',
-        'Set CORRECT_NAME in Scenario2Screen.js to a valid character name.'
-      );
-      return;
-    }
-
     const right = id === correctId;
     setPicked(id);
     setIsCorrect(right);
+
+    if (right) {
+      setScenarioCompleted(16);
+    }
+
     setShowResult(true);
   };
 
@@ -95,64 +104,62 @@ export default function Scenario2Screen() {
         contentContainerStyle={styles.container}
         keyboardShouldPersistTaps="handled"
       >
-        <Text style={styles.kicker}>Scenario #2</Text>
+        <Text style={styles.kicker}>Scenario #16</Text>
         <Text style={styles.title}>
-          Doxxing and posting private information
+          Fake Petition Website to Collect Names + Money
         </Text>
 
-        {/* HERO IMAGE
-            You can change this to your Scenario 2 image if you have one, e.g.:
-            require('../../assets/scenarios/scenario2.png')
-        */}
-        <Image
-          source={require('../../assets/scenarios/xyz-confessions.png')}
-          style={styles.hero}
-          resizeMode="contain"
+        <HeroImage
+          source={require('../../assets/scenarios/FakePetition.png')}
         />
 
-        {/* Description — EDIT THIS TEXT TO YOUR FINAL SCENARIO COPY */}
+        {/* Description */}
         <View style={styles.card}>
           <Text style={styles.sectionTitle}>Description</Text>
           <Text style={styles.body}>
-            A student-run account has started posting screenshots of private
-            group chats, home addresses, and phone numbers of classmates. Some
-            posts even show partial credit card numbers and personal schedules.
-            The posts are framed as “exposing the truth,” but they put several
-            students at serious risk of harassment and stalking.
+            An individual created a fake website claiming to support global
+            education for children. The site encouraged visitors to “sign a
+            petition” and donate a small amount by entering their full name,
+            email address, and credit card information. The website looked
+            polished, using a hand-made digital banner to appear trustworthy.
+            Hundreds of people signed before concerns were raised about the
+            legitimacy of the cause.
           </Text>
         </View>
 
-        {/* Task — EDIT IF NEEDED */}
+        {/* Task */}
         <View style={styles.card}>
           <Text style={styles.sectionTitle}>Your Task</Text>
           <Text style={styles.body}>
-            Identify which individual is responsible for collecting and
-            publishing these private details.
+            Identify who created the fake petition site.
           </Text>
         </View>
 
-        {/* Clues — EDIT THESE TO MATCH YOUR SCENARIO 2 CLUES */}
+        {/* Clues */}
         <View style={styles.card}>
           <Text style={styles.sectionTitle}>Clues</Text>
+
           <Bullet>
-            The doxxing posts include screenshots from private group chats where
-            only a few people were invited.
+            The username used to access the free website builder was
+            “kh.site”.
           </Bullet>
+
           <Bullet>
-            Some posts reveal information that only someone with access to the
-            school’s internal portal (or gradebook system) would know.
+            The banner image was created using digital illustration to make
+            the cause appear personal and trustworthy.
           </Bullet>
+
           <Bullet>
-            The account often posts right after late-night gaming sessions that
-            several students mention in their chats.
+            The same username created multiple websites related to robotics
+            and engineering topics.
           </Bullet>
+
           <Bullet>
-            A victim recognizes their address copied word-for-word from a
-            private delivery confirmation email.
+            The banner art file was saved under the name “kh57”.
           </Bullet>
         </View>
 
-        {/* Character picker */}
+        {/* Character Picker */}
         <View style={styles.card}>
           <Text style={styles.sectionTitle}>Who did it?</Text>
           <Text style={styles.help}>Tap a character to make your guess.</Text>
@@ -161,13 +168,16 @@ export default function Scenario2Screen() {
             {characters.map((c) => (
               <Pressable
                 key={c.id}
+                onPress={() => onPick(c.id)}
                 style={[
                   styles.item,
                   picked === c.id && styles.itemSelected,
                 ]}
-                onPress={() => onPick(c.id)}
               >
-                <Image source={c.image} style={styles.avatar} />
+                <Image
+                  source={c.image}
+                  style={styles.avatar}
+                />
                 <Text style={styles.name} numberOfLines={1}>
                   {c.name}
                 </Text>
@@ -180,9 +190,10 @@ export default function Scenario2Screen() {
         <View style={styles.card}>
           <Text style={styles.sectionTitle}>Notes</Text>
           <Text style={styles.help}>
-            Jot ideas here (suspects, motives, access to private info, patterns
-            in timing). Saved locally on this device.
+            Write down patterns, usernames, stylistic clues, and suspicious
+            digital art styles. Saved locally on this device.
           </Text>
+
           <TextInput
             value={notes}
             onChangeText={setNotes}
@@ -192,6 +203,7 @@ export default function Scenario2Screen() {
             textAlignVertical="top"
             style={styles.input}
           />
+
           <Pressable
             onPress={onSave}
             style={({ pressed }) => [
@@ -208,7 +220,6 @@ export default function Scenario2Screen() {
         <View style={{ height: 40 }} />
       </ScrollView>
 
-      {/* Result Modal */}
       <ResultModal
         visible={showResult}
         correct={isCorrect}
@@ -218,7 +229,7 @@ export default function Scenario2Screen() {
   );
 }
 
-/* ---------- Small helpers ---------- */
+/* ---------- UI Helpers ---------- */
 function Bullet({ children }) {
   return (
     <View style={styles.bulletRow}>
@@ -253,10 +264,11 @@ function ResultModal({ visible, correct, onClose }) {
           >
             {correct ? 'Correct!' : 'Incorrect'}
           </Text>
+
           <Text style={styles.resultBody}>
             {correct
-              ? 'Nice deduction — you identified who is behind the doxxing posts.'
-              : 'Not quite. Re-check who has access to private information and try again.'}
+              ? 'Nice work — you uncovered the creator of the fake petition!'
+              : 'Not quite. Re-check the usernames, banner art, and robotics-related sites.'}
           </Text>
 
           <Pressable
@@ -270,7 +282,6 @@ function ResultModal({ visible, correct, onClose }) {
           </Pressable>
         </View>
 
-        {/* confetti only when correct */}
         {correct ? (
           <ConfettiCannon
             count={140}
@@ -302,37 +313,39 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 22,
     fontWeight: '800',
+    color: COLORS.textPrimary,
     marginTop: 4,
     marginBottom: 10,
-    color: COLORS.textPrimary,
   },
   hero: {
-    width: '100%',
-    height: 220,
     borderRadius: 14,
-    backgroundColor: COLORS.card,
     borderWidth: 1,
     borderColor: COLORS.border,
+    backgroundColor: COLORS.card,
+    marginBottom: 8,
   },
   card: {
     backgroundColor: COLORS.card,
     borderRadius: 14,
+    padding: 14,
     borderWidth: 1,
     borderColor: COLORS.border,
-    padding: 14,
     marginTop: 12,
   },
+
   sectionTitle: {
     fontSize: 16,
     fontWeight: '800',
     marginBottom: 8,
     color: COLORS.primary,
   },
+
   body: {
     fontSize: 14,
     lineHeight: 20,
     color: COLORS.textPrimary,
   },
+
   help: {
     fontSize: 12,
     color: COLORS.textSecondary,
@@ -365,37 +378,38 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   itemSelected: {
-    borderRadius: 10,
     borderWidth: 1,
     borderColor: COLORS.primary,
     backgroundColor: '#262728',
+    borderRadius: 10,
   },
   avatar: {
     width: 70,
     height: 70,
     borderRadius: 35,
-    marginBottom: 6,
     backgroundColor: '#262626',
     borderWidth: 2,
     borderColor: COLORS.primary,
+    marginBottom: 6,
   },
   name: {
     fontSize: 11,
     fontWeight: '700',
-    textAlign: 'center',
     color: COLORS.textPrimary,
+    textAlign: 'center',
   },
 
   input: {
     minHeight: 120,
+    padding: 12,
+    backgroundColor: '#262728',
+    borderRadius: 10,
     borderWidth: 1,
     borderColor: COLORS.border,
-    borderRadius: 10,
-    padding: 12,
-    fontSize: 14,
-    backgroundColor: '#262728',
     color: COLORS.textPrimary,
+    fontSize: 14,
   },
+
   button: {
     marginTop: 10,
     backgroundColor: COLORS.primary,
@@ -403,7 +417,11 @@ const styles = StyleSheet.create({
     borderRadius: 999,
     alignItems: 'center',
   },
-  buttonText: { color: '#fff', fontWeight: '800', fontSize: 15 },
+  buttonText: {
+    color: '#fff',
+    fontWeight: '800',
+    fontSize: 15,
+  },
 
   modalBackdrop: {
     flex: 1,
@@ -422,26 +440,32 @@ const styles = StyleSheet.create({
   },
   okBorder: { borderColor: '#22c55e' },
   errBorder: { borderColor: '#ef4444' },
+
   resultTitle: {
     fontSize: 22,
     fontWeight: '900',
-    marginBottom: 6,
     textAlign: 'center',
+    marginBottom: 6,
     color: COLORS.textPrimary,
   },
   okText: { color: '#4ade80' },
   errText: { color: '#f87171' },
+
   resultBody: {
     textAlign: 'center',
     color: COLORS.textSecondary,
     marginBottom: 12,
   },
+
   modalBtn: {
     alignSelf: 'center',
-    backgroundColor: COLORS.primary,
-    paddingHorizontal: 18,
     paddingVertical: 10,
+    paddingHorizontal: 18,
     borderRadius: 999,
+    backgroundColor: COLORS.primary,
   },
-  modalBtnText: { color: '#fff', fontWeight: '800' },
+  modalBtnText: {
+    color: '#fff',
+    fontWeight: '800',
+  },
 });
